@@ -69,8 +69,9 @@ Serial.print("Error: unknown command: \"");
 }
 }
 
-void clear_input_buffer(char * local_buffer, int buf_len) { {
+void clear_input_buffer(char * local_buffer, int buf_len) {
 for (int index = 0; index < buf_len; index++)
 }
-localbuffer[index]= '\0';
+localbuffer[index] = '\0'; 
+}
 }
