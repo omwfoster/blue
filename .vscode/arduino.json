@@ -1,0 +1,5 @@
+{
+    "sketch": "blue.ino",
+    "board": "arduino:avr:megaADK",
+    "port": "COM3"
+}

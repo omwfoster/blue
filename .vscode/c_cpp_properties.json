@@ -1,0 +1,94 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/usr/include",
+                "/usr/local/include",
+                "${workspaceRoot}"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include",
+                "/usr/local/include",
+                "${workspaceRoot}"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceRoot}",
+                "c:/arduino/hardware/arduino/avr/cores/arduino/",
+                "c:/arduino/hardware/arduino/avr/libraries/EEPROM/",
+                "c:/arduino/hardware/arduino/avr/variants/mega",
+                "c:/arduino/hardware/arduino/avr/libraries/SPI/",
+                "c:/arduino/hardware/arduino/avr/libraries/SoftwareSerial/",
+                "c:/arduino/hardware/arduino/avr/libraries/Wire/",
+                "c:/arduino/hardware/tools/avr/avr/include/",
+                "c:/arduino/hardware/tools/avr/avr/include/avr/",
+                "c:/arduino/hardware/tools/avr/avr/include/compat/",
+                "c:/arduino/hardware/tools/avr/avr/include/util/",
+                "c:/arduino/libraries/Bridge/src/",
+                "c:/arduino/libraries/Esplora/src/",
+                "c:/arduino/libraries/Ethernet/src/",
+                "c:/arduino/libraries/Firmata/src/",
+                "c:/arduino/libraries/GSM/src/",
+                "c:/arduino/libraries/LiquidCrystal/src/",
+                "c:/arduino/libraries/Robot_Control/src/",
+                "c:/arduino/libraries/RobotIRremote/src/",
+                "c:/arduino/libraries/Robot_Motor/src/",
+                "c:/arduino/libraries/SD/src/",
+                "c:/arduino/libraries/Servo/src/",
+                "c:/arduino/libraries/SpacebrewYun/src/",
+                "c:/arduino/libraries/Stepper/src/",
+                "c:/arduino/libraries/Temboo/src/",
+                "c:/arduino/libraries/TFT/src/",
+                "c:/arduino/libraries/WiFi/src/",
+                "c:/arduino/hardware/tools/avr/lib/gcc/avr/4.9.2/include/",
+                "c:/arduino/hardware/tools/avr/lib/gcc/avr/4.9.2/include-fixed/"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceRoot}",
+                    "C:\\Users\\oli\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.6.20\\cores\\arduino"
+                ],
+                "limitSymbolsToIncludedHeaders": false,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 3
+}
