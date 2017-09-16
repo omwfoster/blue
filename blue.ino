@@ -1,9 +1,3 @@
-
-
-
-
-
-
 const int LED_PIN = 13; 
 const int LINE_BUFFER_SIZE = 80; // max line length is one less than this
 
@@ -75,8 +69,7 @@ Serial.print("Error: unknown command: \"");
 }
 
 int  clear_input_buffer(char * local_buffer, int buf_len) {
- for (int index = 0; index < buf_len; index++)
-{
+for (int index = 0; index < buf_len; index++) {
 local_buffer[index] = '\0'; 
 }
- } 
+}
