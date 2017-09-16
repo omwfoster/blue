@@ -46,10 +46,6 @@ void setup() {
 }
 
 
-rgdfgd
-dfsdkfslf
-
-
 
 void loop() {
   Serial.print("> ");
