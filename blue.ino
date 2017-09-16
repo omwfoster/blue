@@ -16,7 +16,7 @@ if (ch == '\n') {
 buffer[index] = '\0'; // end of line reached: null terminate string
 return index; // success: return length of string (zero if string is empty)
 }
-
+//test
 buffer[index] = ch; // Append character to buffer
 }
 
