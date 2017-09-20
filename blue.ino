@@ -4,6 +4,7 @@ const int LINE_BUFFER_SIZE = 80; // max line length is one less than this
 
 
 int read_line(char * buffer, int bufsize) {
+clear_input_buffer(buffer, 20);
 for (int index = 0; index < bufsize; index++) {
 // Wait until characters are available
 while (Serial.available() == 0) {
