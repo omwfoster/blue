@@ -41,6 +41,7 @@ return-1; // error: return negative one to indicate the input was too long
 void setup() {
 pinMode(LED_PIN, OUTPUT); 
 Serial.begin(9600); 
+Serial.println("Welcome");
 }
 
 void loop() {
@@ -74,3 +75,12 @@ for (int index = 0; index < buf_len; index++) {
 local_buffer[index] = '\0'; 
 }
 }
+
+int print_buffer(char * local_buffer, int buf_len) {
+    for (int index = 0; index < buf_len; index++) {
+    Serial.print(local_buffer[index]);
+    }
+    
+    }
+
+
