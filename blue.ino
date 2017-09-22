@@ -24,9 +24,9 @@ int read_line(char * buffer, int bufsize) {
     clear_input_buffer(buffer, 20);
     for (int index = 0; index < bufsize; index++) {
             // Wait until characters are available
-        while (Serial.available() == 0) {
+    /*     while (Serial.available() == 0) {
         }
-
+ */
     char ch = Serial.read(); // read next character
     Serial.print(ch); // echo it back: useful with the serial monitor (optional)
 
@@ -68,11 +68,12 @@ void setup() {
 void loop() {
 
 Serial.print("> "); 
+cylon();
 
 // Read command
 char line[LINE_BUFFER_SIZE]; 
 
-    if (read_line(line, sizeof(line) < 0)) {
+    if (!(Serial.read() == 0) && read_line(line, sizeof(line) < 0)) {
         Serial.println("Error: line too long"); 
         return; // skip command processing and try again on next iteration of loop
 
@@ -85,7 +86,7 @@ char line[LINE_BUFFER_SIZE];
         }else if (strcmp(line, "on") == 0) {
         digitalWrite(LED_PIN, HIGH); 
         }else if (strcmp(line, "") == 0) {
-        cylon();
+        
         
     // Empty line: no command
         }else {

@@ -11,5 +11,8 @@
     <packet name="packet_1">
       <payload>6F66660A</payload>
     </packet>
+    <packet name="no meaning">
+      <payload>74657374206D657373616765206E6F206D65616E696E670A</payload>
+    </packet>
   </packets_list>
 </data>
