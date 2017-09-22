@@ -76,7 +76,7 @@ char line[LINE_BUFFER_SIZE];
         Serial.println("Error: line too long"); 
         return; // skip command processing and try again on next iteration of loop
 
-
+    }
 
 // Process command
 
@@ -97,7 +97,7 @@ char line[LINE_BUFFER_SIZE];
 
 
 
-}
+
 
 
 
