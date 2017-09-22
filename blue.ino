@@ -21,17 +21,19 @@ int  clear_input_buffer(char * local_buffer, int buf_len) {
 
 int read_line(char * buffer, int bufsize) {
     
-    clear_input_buffer(buffer, 20);
+    
     for (int index = 0; index < bufsize; index++) {
+        Serial.print(char(index));
             // Wait until characters are available
-    /*     while (Serial.available() == 0) {
+         while (Serial.available() == 0) {
         }
- */
+ 
     char ch = Serial.read(); // read next character
     Serial.print(ch); // echo it back: useful with the serial monitor (optional)
 
         if (ch == '\n') {
             buffer[index] = '\0'; // end of line reached: null terminate string
+            Serial.print("eol");
             return index; // success: return length of string (zero if string is empty)
         }
     //test
@@ -61,7 +63,7 @@ void setup() {
     Serial.begin(9600); 
     Serial.println("Welcome");
     LEDS.addLeds<WS2812,DATA_PIN,RGB>(leds,NUM_LEDS);
-    LEDS.setBrightness(84);
+    LEDS.setBrightness(20);
 
 }
 
@@ -72,8 +74,9 @@ cylon();
 
 // Read command
 char line[LINE_BUFFER_SIZE]; 
+clear_input_buffer(line, 20);
 
-    if (!(Serial.read() == 0) && read_line(line, sizeof(line) < 0)) {
+    if ((Serial.read() != 0) && read_line(line, sizeof(line) < 0)) {
         Serial.println("Error: line too long"); 
         return; // skip command processing and try again on next iteration of loop
 
@@ -82,7 +85,7 @@ char line[LINE_BUFFER_SIZE];
 // Process command
 
     if (strcmp(line, "off") == 0) {
-        digitalWrite(LED_PIN, LOW); 
+        digitalWrite(LED_PIN, LOW);
         }else if (strcmp(line, "on") == 0) {
         digitalWrite(LED_PIN, HIGH); 
         }else if (strcmp(line, "") == 0) {
@@ -113,7 +116,6 @@ int print_buffer(char * local_buffer, int buf_len) {
 
     void cylon() { 
         static uint8_t hue = 0;
-        Serial.print("x");
         // First slide the led in one direction
         for(int i = 0; i < NUM_LEDS; i++) {
             // Set the i'th led to red 
@@ -126,7 +128,7 @@ int print_buffer(char * local_buffer, int buf_len) {
             // Wait a little bit before we loop around and do it again
             delay(10);
         }
-        Serial.print("x");
+
     
         // Now go in the other direction.  
         for(int i = (NUM_LEDS)-1; i >= 0; i--) {
