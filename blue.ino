@@ -50,6 +50,7 @@ Serial.print("> ");
 // Read command
 
 char line[LINE_BUFFER_SIZE]; 
+clear_input_buffer[line,LINE_BUFFER_SIZE];
 if (read_line(line, sizeof(line)) < 0) {
 Serial.println("Error: line too long"); 
 return; // skip command processing and try again on next iteration of loop
