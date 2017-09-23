@@ -76,13 +76,14 @@ cylon();
 char line[LINE_BUFFER_SIZE]; 
 clear_input_buffer(line, 20);
 
-    if ((Serial.read() != 0) && read_line(line, sizeof(line) < 0)) {
+    if ( read_line(line, sizeof(line) < 0)) {   // edit out (Serial.read() != 0) && condition to test for faulty conditionals
         Serial.println("Error: line too long"); 
         return; // skip command processing and try again on next iteration of loop
 
-    }
+     }
 
 // Process command
+
 
     if (strcmp(line, "off") == 0) {
         digitalWrite(LED_PIN, LOW);
