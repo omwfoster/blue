@@ -1,7 +1,15 @@
+#include "FastLED.h"
+#define NUM_LEDS 64 
+#define DATA_PIN 7
+#define CLOCK_PIN 13
+
+
+
 const int LED_PIN = 13; 
 const int LINE_BUFFER_SIZE = 80; // max line length is one less than this
+CRGB leds[NUM_LEDS]; 
 
-
+void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } } 
 
 int read_line(char * buffer, int bufsize) {
 clear_input_buffer(buffer, 20);
@@ -42,6 +50,8 @@ void setup() {
 pinMode(LED_PIN, OUTPUT); 
 Serial.begin(9600); 
 Serial.println("Welcome");
+LEDS.addLeds<WS2812,DATA_PIN,RGB>(leds,NUM_LEDS); 
+LEDS.setBrightness(84); 
 }
 
 void loop() {
@@ -83,5 +93,36 @@ int print_buffer(char * local_buffer, int buf_len) {
     }
     
     }
+
+    void cylon() {  
+        static uint8_t hue = 0; 
+        Serial.print("x"); 
+        // First slide the led in one direction 
+        for(int i = 0; i < NUM_LEDS; i++) { 
+            // Set the i'th led to red  
+            leds[i] = CHSV(hue++, 255, 255); 
+            // Show the leds 
+            FastLED.show();  
+            // now that we've shown the leds, reset the i'th led to black 
+            // leds[i] = CRGB::Black; 
+            fadeall(); 
+            // Wait a little bit before we loop around and do it again 
+            delay(10); 
+        } 
+        Serial.print("x"); 
+     
+        // Now go in the other direction.   
+        for(int i = (NUM_LEDS)-1; i >= 0; i--) { 
+            // Set the i'th led to red  
+            leds[i] = CHSV(hue++, 255, 255); 
+            // Show the leds 
+            FastLED.show(); 
+            // now that we've shown the leds, reset the i'th led to black 
+            // leds[i] = CRGB::Black; 
+            fadeall(); 
+            // Wait a little bit before we loop around and do it again 
+            delay(10); 
+        } 
+    } 
 
 
