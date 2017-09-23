@@ -60,6 +60,7 @@
                 "c:/arduino/libraries/Esplora/src/",
                 "c:/arduino/libraries/Ethernet/src/",
                 "c:/arduino/libraries/Firmata/src/",
+                "C:/arduino/libraries/HashMap/",
                 "c:/arduino/libraries/FastLED/src/",
                 "c:/arduino/libraries/GSM/src/",
                 "c:/arduino/libraries/LiquidCrystal/src/",
