@@ -11,7 +11,7 @@
 
 
 const int LED_PIN = 13; 
-const int LINE_BUFFER_SIZE = 80; // max line length is one less than this
+const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
 CRGB leds[NUM_LEDS]; 
 
 
@@ -66,32 +66,31 @@ void setup() {
     LEDS.setBrightness(84); 
 
     strangeLed[0]("a", 1);
-    strangeLed[1]("b", 1);
-    strangeLed[2]("c", 1);
-    strangeLed[3]("d", 1);
-    strangeLed[4]("e", 1);
-    strangeLed[5]("f", 1);
-    strangeLed[6]("g", 1);
-    strangeLed[7]("h", 1);
-    strangeLed[8]("i", 1);
-    strangeLed[9]("j", 1);
-    strangeLed[10]("k", 1);
-    strangeLed[11]("l", 1);
-    strangeLed[12]("m", 1);
-    strangeLed[13]("n", 1);
-    strangeLed[14]("o", 1);
-    strangeLed[15]("p", 1);
-    strangeLed[16]("q", 1);
-    strangeLed[17]("r", 1);
-    strangeLed[18]("s", 1);
-    strangeLed[19]("t", 1);  
-    strangeLed[20]("u", 1);
-    strangeLed[21]("v", 1);
-    strangeLed[22]("w", 1);
-    strangeLed[23]("x", 1);
-    strangeLed[24]("y", 1);
-    strangeLed[25]("z", 1);
-    strangeLed[26]("x", 1);
+    strangeLed[1]("b", 2);
+    strangeLed[2]("c", 3);
+    strangeLed[3]("d", 4);
+    strangeLed[4]("e", 5);
+    strangeLed[5]("f", 6);
+    strangeLed[6]("g", 7);
+    strangeLed[7]("h", 8);
+    strangeLed[8]("i", 9);
+    strangeLed[9]("j", 10);
+    strangeLed[10]("k", 11);
+    strangeLed[11]("l", 12);
+    strangeLed[12]("m", 13);
+    strangeLed[13]("n", 14);
+    strangeLed[14]("o", 15);
+    strangeLed[15]("p", 16);
+    strangeLed[16]("q", 17);
+    strangeLed[17]("r", 18);
+    strangeLed[18]("s", 19);
+    strangeLed[19]("t", 20);  
+    strangeLed[20]("u", 21);
+    strangeLed[21]("v", 22);
+    strangeLed[22]("w", 23);
+    strangeLed[23]("x", 24);
+    strangeLed[24]("y", 25);
+    strangeLed[25]("z", 26);
 }
 
 void loop() {
@@ -116,6 +115,7 @@ void loop() {
     }else if (strcmp(line, "") == 0) {
     // Empty line: no command
     }else {
+        strangerlite(line,20);
         Serial.print("Error: unknown command: \"");
         Serial.print(line);
         Serial.println("\" (available commands: \"off\", \"on\")"); 
@@ -137,7 +137,7 @@ int print_buffer(char * local_buffer, int buf_len) {
 
 void cylon() {  
         static uint8_t hue = 0; 
-        Serial.print("x"); 
+//        Serial.print("x"); 
         // First slide the led in one direction 
         for(int i = 0; i < NUM_LEDS; i++) { 
             // Set the i'th led to red  
@@ -150,7 +150,7 @@ void cylon() {
             // Wait a little bit before we loop around and do it again 
             delay(10); 
         } 
-        Serial.print("x"); 
+//        Serial.print("x"); 
      
         // Now go in the other direction.   
         for(int i = (NUM_LEDS)-1; i >= 0; i--) { 
@@ -169,32 +169,22 @@ void cylon() {
 
 void strangerlite(char * buffer, int buf_size ) {  
     static uint8_t hue = 0; 
-    Serial.print("x"); 
+    fadeall();
+
     // First slide the led in one direction 
-    for(int i = 0; i < NUM_LEDS; i++) { 
-        // Set the i'th led to red  
-        leds[i] = CHSV(hue++, 255, 255); 
-        // Show the leds 
-        FastLED.show();  
-        // now that we've shown the leds, reset the i'th led to black 
-        // leds[i] = CRGB::Black; 
-        fadeall(); 
-        // Wait a little bit before we loop around and do it again 
-        delay(10); 
+    for(int i = 0; i < buf_size; i++) { 
+    char c  = buffer[i];   
+    if (c  != '\n'){
+         
+        Serial.print(strangeLed.getValueOf(c),DEC);
+    }
+
+    
+
     } 
-    Serial.print("x"); 
  
-    // Now go in the other direction.   
-    for(int i = (NUM_LEDS)-1; i >= 0; i--) { 
-        // Set the i'th led to red  
-        leds[i] = CHSV(hue++, 255, 255); 
-        // Show the leds 
-        FastLED.show(); 
-        // now that we've shown the leds, reset the i'th led to black 
-        // leds[i] = CRGB::Black; 
-        fadeall(); 
-        // Wait a little bit before we loop around and do it again 
-        delay(10); 
-    } 
+ 
+    
 } 
+
 
