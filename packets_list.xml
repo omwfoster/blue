@@ -11,5 +11,8 @@
     <packet name="on">
       <payload>6F6E0A</payload>
     </packet>
+    <packet name="hello world">
+      <payload>68656C6C6F20776F726C640A</payload>
+    </packet>
   </packets_list>
 </data>
