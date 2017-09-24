@@ -175,11 +175,8 @@ void strangerlite(char * buffer, int buf_size ) {
     for(int i = 0; i < buf_size; i++) { 
     char c  = buffer[i];   
     if (c  != '\0'){   
-    //   Serial.print(c);
-    //   Serial.print(strangeLed.(c),DEC);
-    //   Serial.println(strangeLed.getIndexOf('z'),DEC );
          Serial.print((int)strangeLed.getValueOf(c));
-    //   Serial.println(strangeLed.getIndexOf('c'),DEC );
+         Serial.print('\n');
     }
     
 
@@ -187,7 +184,7 @@ void strangerlite(char * buffer, int buf_size ) {
 
     } 
  
-    strangeLed.debug();
+  //  strangeLed.debug(); //output hashmap contents
     
 } 
 
