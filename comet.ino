@@ -20,16 +20,16 @@ Neopixel chipset: ws2812B  (144 LED/m strip)
 ===================================================================================================================================================== */
 
 //This project needs the FastLED library - link in the description.
-#include "FastLED.h"
+//#include "FastLED.h"
 
 //The total number of LEDs being used is 144
-#define NUM_LEDS 144
+//#define NUM_LEDS 144
 
 // The data pin for the NeoPixel strip is connected to digital Pin 6 on the Arduino
-#define DATA_PIN 6
+//#define DATA_PIN 6
 
 //Initialise the LED array, the LED Hue (ledh) array, and the LED Brightness (ledb) array.
-CRGB leds[NUM_LEDS];
+//CRGB leds[NUM_LEDS];
 byte ledh[NUM_LEDS];
 byte ledb[NUM_LEDS];
 
@@ -58,11 +58,11 @@ boolean constSpeed = false; // constSpeed:  toggle between constant and variable
 //===================================================================================================================================================
 // setup() : Is used to initialise the LED strip
 //===================================================================================================================================================
-void setup() {
+/* void setup() {
     delay(2000);          //Delay for two seconds to power the LEDS before starting the data signal on the Arduino
     FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);                            //initialise the LED strip       
 }
-
+ */
 
 //===================================================================================================================================================
 // loop() : The Arduino will take readings from the potentiometer and accelerometer to control the LED strip

@@ -8,6 +8,33 @@
 #define CLOCK_PIN 13
 #define HASH_SIZE 26
 
+//Initialise the LED array, the LED Hue (ledh) array, and the LED Brightness (ledb) array.
+CRGB leds[NUM_LEDS];
+byte ledh[NUM_LEDS];
+byte ledb[NUM_LEDS];
+
+//Pin connections
+const int potPin = A0;      // The potentiometer signal pin is connected to Arduino's Analog Pin 0
+const int yPin = A4;        // Y pin on accelerometer is connected to Arduino's Analog Pin 4
+                            // The accelerometer's X Pin and the Z Pin were not used in this sketch
+
+//Global Variables ---------------------------------------------------------------------------------
+byte potVal;                // potVal:      stores the potentiometer signal value
+byte prevPotVal=0;          // prevPotVal:  stores the previous potentiometer value
+int LEDSpeed=1;             // LEDSpeed:    stores the "speed" of the LED animation sequence
+int maxLEDSpeed = 50;       // maxLEDSpeed: identifies the maximum speed of the LED animation sequence
+int LEDAccel=0;             // LEDAccel:    stores the acceleration value of the LED animation sequence (to speed it up or slow it down)
+int LEDPosition=72;         // LEDPosition: identifies the LED within the strip to modify (leading LED). The number will be between 0-143.  (Zero to NUM_LEDS-1)
+int oldPos=0;               // oldPos:      holds the previous position of the leading LED
+byte hue = 0;               // hue:         stores the leading LED's hue value
+byte intensity = 150;       // intensity:   the default brightness of the leading LED
+byte bright = 80;           // bright:      this variable is used to modify the brightness of the trailing LEDs
+int animationDelay = 0;     // animationDelay: is used in the animation Speed calculation. The greater the animationDelay, the slower the LED sequence.
+int effect = 0;             // effect:      is used to differentiate and select one out of the four effects
+int sparkTest = 0;          // sparkTest:   variable used in the "sparkle" LED animation sequence 
+boolean constSpeed = false; // constSpeed:  toggle between constant and variable speed.
+
+
 
 
 const int LED_PIN = 13; 
@@ -27,7 +54,7 @@ int read_line(char * buffer, int bufsize) {
     for (int index = 0; index < bufsize; index++) {
         // Wait until characters are available
             while (Serial.available() == 0) {
-                cylon();
+ //               cylon();//test leds are functioning when idle
             }
 
             char ch = Serial.read(); // read next character
@@ -135,6 +162,9 @@ int print_buffer(char * local_buffer, int buf_len) {
     
     }
 
+
+    
+
 void cylon() {  
         static uint8_t hue = 0; 
 //        Serial.print("x"); 
@@ -187,5 +217,17 @@ void strangerlite(char * buffer, int buf_size ) {
   //  strangeLed.debug(); //output hashmap contents
     
 } 
+
+
+
+void running_light(int start,int finish)
+{
+    for(int dot = start; dot < finish; dot++) { 
+        adjustSpeed();
+        constrainLEDs();
+    }
+
+
+}
 
 
