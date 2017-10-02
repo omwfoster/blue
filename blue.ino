@@ -15,7 +15,7 @@
 const int LED_PIN = 13; 
 const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
 CRGB leds[NUM_LEDS]; 
-int led_position = 0;
+volatile int led_position = 0;
 
 
 
@@ -69,31 +69,31 @@ void setup() {
     LEDS.setBrightness(84); 
 
     strangeLed[0]('a', 1);
-    strangeLed[1]('b', 2);
-    strangeLed[2]('c', 3);
-    strangeLed[3]('d', 4);
-    strangeLed[4]('e', 5);
-    strangeLed[5]('f', 6);
-    strangeLed[6]('g', 7);
-    strangeLed[7]('h', 8);
-    strangeLed[8]('i', 9);
-    strangeLed[9]('j', 10);
-    strangeLed[10]('k', 11);
-    strangeLed[11]('l', 12);
-    strangeLed[12]('m', 13);
-    strangeLed[13]('n', 14);
-    strangeLed[14]('o', 15);
-    strangeLed[15]('p', 16);
-    strangeLed[16]('q', 17);
-    strangeLed[17]('r', 18);
-    strangeLed[18]('s', 19);
-    strangeLed[19]('t', 20);  
-    strangeLed[20]('u', 21);
-    strangeLed[21]('v', 22);
-    strangeLed[22]('w', 23);
-    strangeLed[23]('x', 24);
-    strangeLed[24]('y', 25);
-    strangeLed[25]('z', 26);
+    strangeLed[1]('b', 3);
+    strangeLed[2]('c', 6);
+    strangeLed[3]('d', 8);
+    strangeLed[4]('e', 10);
+    strangeLed[5]('f', 12);
+    strangeLed[6]('g', 14;
+    strangeLed[7]('h', 16);
+    strangeLed[8]('i', 18);
+    strangeLed[9]('j', 20);
+    strangeLed[10]('k', 22);
+    strangeLed[11]('l', 24);
+    strangeLed[12]('m', 26);
+    strangeLed[13]('n', 28);
+    strangeLed[14]('o', 30);
+    strangeLed[15]('p', 32);
+    strangeLed[16]('q', 34);
+    strangeLed[17]('r', 36);
+    strangeLed[18]('s', 38);
+    strangeLed[19]('t', 40);  
+    strangeLed[20]('u', 42);
+    strangeLed[21]('v', 44);
+    strangeLed[22]('w', 46);
+    strangeLed[23]('x', 48);
+    strangeLed[24]('y', 50);
+    strangeLed[25]('z', 52);
 }
 
 void loop() {
@@ -114,12 +114,13 @@ void loop() {
     if (strcmp(line, "off") == 0) {
         digitalWrite(LED_PIN, LOW); 
     }else if (strcmp(line, "on") == 0) {
+        cylon();
         digitalWrite(LED_PIN, HIGH); 
     }else if (strcmp(line, "") == 0) {
     // Empty line: no command
     }else {
         strangerlite(line,20);
-      //  Serial.print("Error: unknown command: \"");
+        Serial.println("stranger output");
        // Serial.print(line);
       //  Serial.println("\" (available commands: \"off\", \"on\")"); 
     }
@@ -181,7 +182,8 @@ void strangerlite(char * buffer, int buf_size ) {
     for(int i = 0; i < buf_size; i++) { 
     char c  = buffer[i];   
     if (c  != '\0'){   
-         led_position = (int)strangeLed.getValueOf(c);
+         Serial.print((int)strangeLed.getValueOf(c));
+         running_light((int)strangeLed.getValueOf(c));
     }
     
 
@@ -201,21 +203,24 @@ void running_light(int next_position)
 
     if(led_position < next_position) {
         for(int dot = led_position; dot < next_position; dot++) {                           // Randomly select a brightness between 50 and 100
-            fadeLEDs(8);  
-            leds[dot] = CRGB::Red;   // The trailing LEDs will have a different hue to the leading LED, and will have a random brightness
-            delay(100);
+            fadeLEDs(64);  
+            leds[dot] = CRGB::;   // The trailing LEDs will have a different hue to the leading LED, and will have a random brightness
+            FastLED.show(); 
+            delay(70);
 
         }
     }
     else if(led_position > next_position){
-        for(int dot = led_position; dot < next_position; dot) {                           // Randomly select a brightness between 50 and 100
-            fadeLEDs(8);  
+        for(int dot = led_position; dot > next_position; dot--) {                           // Randomly select a brightness between 50 and 100
+            fadeLEDs(64);  
             leds[dot] = CRGB::Red;   // The trailing LEDs will have a different hue to the leading LED, and will have a random brightness
-            delay(100);
+            FastLED.show(); 
+            delay(70);
         }
     }
 
-
+    led_position = next_position;
+    delay(1000)
 
 }
 
