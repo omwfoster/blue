@@ -5,6 +5,7 @@
   <repeat_times>1</repeat_times>
   <repeat_period>500</repeat_period>
   <packets_list>
+<<<<<<< HEAD
     <packet name="off">
       <payload>6F66660A</payload>
     </packet>
@@ -13,6 +14,16 @@
     </packet>
     <packet name="hello world">
       <payload>68656C6C6F20776F726C640A</payload>
+=======
+    <packet name="packet_0">
+      <payload>6F6E0A</payload>
+    </packet>
+    <packet name="packet_1">
+      <payload>6F66660A</payload>
+    </packet>
+    <packet name="no meaning">
+      <payload>74657374206D657373616765206E6F206D65616E696E670A</payload>
+>>>>>>> ce7d2158f326307c0b7911af733af423d8cf0cb2
     </packet>
   </packets_list>
 </data>
