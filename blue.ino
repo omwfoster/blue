@@ -65,7 +65,7 @@ void setup() {
     pinMode(LED_PIN, OUTPUT); 
     Serial.begin(9600); 
     Serial.println("Welcome");
-    LEDS.addLeds<WS2812,DATA_PIN,RGB>(leds,NUM_LEDS); 
+    LEDS.addLeds<WS2812,DATA_PIN,GRB>(leds,NUM_LEDS); 
     LEDS.setBrightness(84); 
 
     strangeLed[0]('a', 1);
@@ -74,7 +74,7 @@ void setup() {
     strangeLed[3]('d', 8);
     strangeLed[4]('e', 10);
     strangeLed[5]('f', 12);
-    strangeLed[6]('g', 14;
+    strangeLed[6]('g', 14);
     strangeLed[7]('h', 16);
     strangeLed[8]('i', 18);
     strangeLed[9]('j', 20);
@@ -100,21 +100,22 @@ void loop() {
     Serial.print("> "); 
 
     // Read command
-
+    
     char line[LINE_BUFFER_SIZE]; 
     //Serial.printNumber(Serial.available());
     clear_input_buffer[line,LINE_BUFFER_SIZE];
     if (  read_line(line, sizeof(line)) < 0) {
-      //  Serial.println("Error: line too long"); 
+        Serial.println("Error: line too long"); 
     return; // skip command processing and try again on next iteration of loop
     }
 
     // Process command
 
+
     if (strcmp(line, "off") == 0) {
         digitalWrite(LED_PIN, LOW); 
     }else if (strcmp(line, "on") == 0) {
-        cylon();
+        
         digitalWrite(LED_PIN, HIGH); 
     }else if (strcmp(line, "") == 0) {
     // Empty line: no command
@@ -124,6 +125,8 @@ void loop() {
        // Serial.print(line);
       //  Serial.println("\" (available commands: \"off\", \"on\")"); 
     }
+
+    cylon();
 }
 
 int  clear_input_buffer(char * local_buffer, int buf_len) {
@@ -178,12 +181,12 @@ void strangerlite(char * buffer, int buf_size ) {
     static uint8_t hue = 0; 
     fadeall();
 
-    // First slide the led in one direction 
+    // iterate through the 
     for(int i = 0; i < buf_size; i++) { 
     char c  = buffer[i];   
     if (c  != '\0'){   
-         Serial.print((int)strangeLed.getValueOf(c));
-         running_light((int)strangeLed.getValueOf(c));
+    //     Serial.print((int)strangeLed.getValueOf(c));
+         running_light((int)strangeLed.getValueOf(c));     
     }
     
 
@@ -202,26 +205,37 @@ void running_light(int next_position)
 
 
     if(led_position < next_position) {
-        for(int dot = led_position; dot < next_position; dot++) {                           // Randomly select a brightness between 50 and 100
+        for(int dot = led_position; dot < next_position; dot++) {                           // iterate forward as requiired
             fadeLEDs(64);  
-            leds[dot] = CRGB::;   // The trailing LEDs will have a different hue to the leading LED, and will have a random brightness
+            leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
-            delay(70);
+            delay(10);
 
         }
+    pulse(&leds[led_position]);
     }
     else if(led_position > next_position){
-        for(int dot = led_position; dot > next_position; dot--) {                           // Randomly select a brightness between 50 and 100
+        for(int dot = led_position; dot > next_position; dot--) {                           // iterate backwards as required
             fadeLEDs(64);  
-            leds[dot] = CRGB::Red;   // The trailing LEDs will have a different hue to the leading LED, and will have a random brightness
+            leds[dot].red = 100;   //  // plain red led for creepy message
             FastLED.show(); 
-            delay(70);
+            delay(10);
         }
+     pulse(&leds[led_position]);
     }
 
     led_position = next_position;
-    delay(1000)
+    delay(1000);
 
 }
+
+
+void pulse(CRGB * cursor_loc)
+{
+    cursor_loc->fadeLightBy(50);
+}
+
+
+
 
 
