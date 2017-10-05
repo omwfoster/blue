@@ -179,7 +179,11 @@ void strangerlite(char * buffer, int buf_size ) {
     char c  = buffer[i];   
     if (c  != '\0'){   
     //     Serial.print((int)strangeLed.getValueOf(c));
-         running_light((int)strangeLed.getValueOf(c));     
+         running_light((int)strangeLed.getValueOf(c));  
+         FastLED.show(); 
+         fadeall();
+         FastLED.show(); 
+         pulse(&leds[led_position]);   
     }
     
 
@@ -202,18 +206,19 @@ void running_light(int next_position)
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
             delay(10);
-
         }
     pulse(&leds[led_position]);
     }
     else if(led_position > next_position){
-        for(int dot = led_position; dot > next_position; dot--) {                           // iterate backwards as required
+        for(int dot = led_position; dot > next_position; dot--) {                           // iterate backwards as required            
             fadeLEDs(64);  
-            leds[dot].red = 100;   //  // plain red led for creepy message
+            leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
             delay(10);
         }
-     pulse(&leds[led_position]);
+
+      
+     
     }
 
     led_position = next_position;
@@ -224,11 +229,14 @@ void running_light(int next_position)
 
 void pulse(CRGB * cursor_loc)
 {
-
+    Serial.print("pulse function");
     //placeholder -- needed for incremental fade
-    for (int i = 100;i =0; i--)   
+    //while (cursor_loc->red > 25)   
+    for(int i =100;i > 0 ; i--)
     {
-    cursor_loc->fadeLightBy(50);
+    cursor_loc->red = i;
+    FastLED.show(); 
+    
     }
 }
 
