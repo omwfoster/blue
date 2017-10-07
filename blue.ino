@@ -12,13 +12,14 @@
 
 const int LED_PIN = 13; 
 const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
-CRGB leds[NUM_LEDS]; 
+//CRGB leds[NUM_LEDS]; 
+CRGBArray<NUM_LEDS> leds;
 volatile int led_position = 0;
 
 HashType<char const *, int> hashRawArray[HASH_SIZE];
 HashMap<char const *, int> strangeLed = HashMap<char const *, int>(hashRawArray, HASH_SIZE);
 
-void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } } 
+void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } }
 
 int read_line(char * buffer, int bufsize) {
     clear_input_buffer(buffer, 20);
@@ -121,7 +122,7 @@ void loop() {
       //  Serial.println("\" (available commands: \"off\", \"on\")"); 
     }
 
-    cylon();
+  //  cylon();
 }
 
 int  clear_input_buffer(char * local_buffer, int buf_len) {
@@ -179,10 +180,9 @@ void strangerlite(char * buffer, int buf_size ) {
     char c  = buffer[i];   
     if (c  != '\0'){   
     //     Serial.print((int)strangeLed.getValueOf(c));
-         running_light((int)strangeLed.getValueOf(c));  
-         FastLED.show(); 
          fadeall();
-         FastLED.show(); 
+         FastLED.show();
+         running_light((int)strangeLed.getValueOf(c));  
          pulse(&leds[led_position]);   
     }
     
@@ -202,7 +202,7 @@ void running_light(int next_position)
 
     if(led_position < next_position) {
         for(int dot = led_position; dot < next_position; dot++) {                           // iterate forward as requiired
-            fadeLEDs(64);  
+            leds.fadeToBlackBy(40); 
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
             delay(10);
@@ -211,7 +211,7 @@ void running_light(int next_position)
     }
     else if(led_position > next_position){
         for(int dot = led_position; dot > next_position; dot--) {                           // iterate backwards as required            
-            fadeLEDs(64);  
+            leds.fadeToBlackBy(40); 
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
             delay(10);
@@ -232,6 +232,9 @@ void pulse(CRGB * cursor_loc)
     Serial.print("pulse function");
     //placeholder -- needed for incremental fade
     //while (cursor_loc->red > 25)   
+
+    leds.fadeToBlackBy(40);
+    FastLED.show();
     for(int i =100;i > 0 ; i--)
     {
     cursor_loc->red = i;
