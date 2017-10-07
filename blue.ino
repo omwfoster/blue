@@ -16,13 +16,13 @@ const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
 CRGBArray<NUM_LEDS> leds;
 volatile int led_position = 0;
 
-HashType<char const *, int> hashRawArray[HASH_SIZE];
+HashType<char const *, int> hashRawArray[HASH_SIZE];   /// hashmap array definition to implement character tranlation to led array location
 HashMap<char const *, int> strangeLed = HashMap<char const *, int>(hashRawArray, HASH_SIZE);
 
 void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } }
 
 int read_line(char * buffer, int bufsize) {
-    clear_input_buffer(buffer, 20);
+    clear_input_buffer(buffer, 20); // guarantee no bad data carried over from previous run
     for (int index = 0; index < bufsize; index++) {
         // Wait until characters are available
             while (Serial.available() == 0) {
@@ -59,9 +59,9 @@ return-1; // error: return negative one to indicate the input was too long
 
 void setup() {
     pinMode(LED_PIN, OUTPUT); 
-    Serial.begin(9600); 
+    Serial.begin(9600);    // default serial setup for debugging
     Serial.println("Welcome");
-    LEDS.addLeds<WS2812,DATA_PIN,GRB>(leds,NUM_LEDS); 
+    LEDS.addLeds<WS2812,DATA_PIN,GRB>(leds,NUM_LEDS); // create led class to hold values <led type,output_pin,orderby which colours are processed within the 3 byte CRG struct
     LEDS.setBrightness(84); 
 
     strangeLed[0]('a', 1);
@@ -118,22 +118,23 @@ void loop() {
     }else {
         strangerlite(line,20);
         Serial.println("stranger output");
-       // Serial.print(line);
-      //  Serial.println("\" (available commands: \"off\", \"on\")"); 
     }
 
   //  cylon();
 }
 
 int  clear_input_buffer(char * local_buffer, int buf_len) {
-for (int index = 0; index < buf_len; index++) {
-local_buffer[index] = '\0'; 
-}
+
+    for (int index = 0; index < buf_len; index++) {
+
+    local_buffer[index] = '\0'; //write 20 string terminators to array. 
+                            //Guarantees that any string within bounds will be null terminated
+    }
 }
 
 int print_buffer(char * local_buffer, int buf_len) {
     for (int index = 0; index < buf_len; index++) {
-    Serial.print(local_buffer[index]);
+    Serial.print(local_buffer[index]);   //output buffer contents for debug
     }
     
     }
@@ -221,17 +222,15 @@ void running_light(int next_position)
      
     }
 
-    led_position = next_position;
+    led_position = next_position;  // exit function setting global variable led_position
     delay(1000);
 
 }
 
 
 void pulse(CRGB * cursor_loc)
-{
-    Serial.print("pulse function");
-    //placeholder -- needed for incremental fade
-    //while (cursor_loc->red > 25)   
+{   
+    // pulse led to highlight static led position
 
     leds.fadeToBlackBy(40);
     FastLED.show();
