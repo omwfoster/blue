@@ -19,14 +19,32 @@ volatile int led_position = 0;
 HashType<char const *, int> hashRawArray[HASH_SIZE];   /// hashmap array definition to implement character tranlation to led array location
 HashMap<char const *, int> strangeLed = HashMap<char const *, int>(hashRawArray, HASH_SIZE);
 
-void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } }
+void fadeall() { 
+    for(int i = 0; i < NUM_LEDS; i++) { 
+        leds[i].fadeToBlackBy( 64 ); } 
+    }
+
+void fadealltozero(){
+    bool led_flag = false;
+    const CRGB TEST_COLOR = CRGB::Black;
+
+    while(led_flag == false)
+    {
+        leds.fadeToBlackBy( 64);
+        Serial.print("fade");
+        FastLED.show(); 
+        led_flag = false;
+        for(int i = 0; i < NUM_LEDS;i++){         
+            led_flag = (led_flag ||  (leds[i] != TEST_COLOR ));
+        }
+    }
+}
 
 int read_line(char * buffer, int bufsize) {
     clear_input_buffer(buffer, 20); // guarantee no bad data carried over from previous run
     for (int index = 0; index < bufsize; index++) {
         // Wait until characters are available
             while (Serial.available() == 0) {
- //               cylon();//test leds are functioning when idle
             }
 
             char ch = Serial.read(); // read next character
@@ -43,17 +61,17 @@ int read_line(char * buffer, int bufsize) {
 // Reached end of buffer, but have not seen the end-of-line yet.
 // Discard the rest of the line (safer than returning a partial line).
 
-char ch; 
-do {
-    // Wait until characters are available
-    while (Serial.available() == 0) {
-    }
-    ch = Serial.read(); // read next character (and discard it)
-   // Serial.print(ch); // echo it back
-}while (ch != '\n'); 
+    char ch; 
+    do {
+        // Wait until characters are available
+        while (Serial.available() == 0) {
+        }
+        ch = Serial.read(); // read next character (and discard it)
+    // Serial.print(ch); // echo it back
+    }while (ch != '\n'); 
 
-buffer[0] = 0; // set buffer to empty string even though it should not be used
-return-1; // error: return negative one to indicate the input was too long
+    buffer[0] = 0; // set buffer to empty string even though it should not be used
+    return-1; // error: return negative one to indicate the input was too long
 }
 
 
@@ -63,7 +81,7 @@ void setup() {
     Serial.println("Welcome");
     LEDS.addLeds<WS2812,DATA_PIN,GRB>(leds,NUM_LEDS); // create led class to hold values <led type,output_pin,orderby which colours are processed within the 3 byte CRG struct
     LEDS.setBrightness(84); 
-
+    // mapped values for character led mappings
     strangeLed[0]('a', 1);
     strangeLed[1]('b', 3);
     strangeLed[2]('c', 6);
@@ -116,7 +134,9 @@ void loop() {
     }else if (strcmp(line, "") == 0) {
     // Empty line: no command
     }else {
+        fadeall();
         strangerlite(line,20);
+        
         Serial.println("stranger output");
     }
 
@@ -126,7 +146,6 @@ void loop() {
 int  clear_input_buffer(char * local_buffer, int buf_len) {
 
     for (int index = 0; index < buf_len; index++) {
-
     local_buffer[index] = '\0'; //write 20 string terminators to array. 
                             //Guarantees that any string within bounds will be null terminated
     }
@@ -137,7 +156,7 @@ int print_buffer(char * local_buffer, int buf_len) {
     Serial.print(local_buffer[index]);   //output buffer contents for debug
     }
     
-    }
+ }
 
 
     
@@ -173,23 +192,15 @@ void cylon() {
 
 
 void strangerlite(char * buffer, int buf_size ) {  
-    static uint8_t hue = 0; 
-    fadeall();
+ 
 
-    // iterate through the 
+    // iterate through the imput buffer until 0a is reached
     for(int i = 0; i < buf_size; i++) { 
     char c  = buffer[i];   
-    if (c  != '\0'){   
-    //     Serial.print((int)strangeLed.getValueOf(c));
-         fadeall();
-         FastLED.show();
+        if (c  != '\0'){   
+        //     Serial.print((int)strangeLed.getValueOf(c));
          running_light((int)strangeLed.getValueOf(c));  
-         pulse(&leds[led_position]);   
-    }
-    
-
-    
-
+         }
     } 
  
     
@@ -203,16 +214,15 @@ void running_light(int next_position)
 
     if(led_position < next_position) {
         for(int dot = led_position; dot < next_position; dot++) {                           // iterate forward as requiired
-            leds.fadeToBlackBy(40); 
+            leds.fadeToBlackBy(64); // incrementally fade the tail of the message
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
             delay(10);
         }
-    pulse(&leds[led_position]);
     }
     else if(led_position > next_position){
         for(int dot = led_position; dot > next_position; dot--) {                           // iterate backwards as required            
-            leds.fadeToBlackBy(40); 
+            leds.fadeToBlackBy(64); 
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
             delay(10);
@@ -221,9 +231,9 @@ void running_light(int next_position)
       
      
     }
-
+    fadealltozero(); // clear the leds prior to flashing output charater led
+    pulse(&leds[next_position]);       // pulse on hashmapped led
     led_position = next_position;  // exit function setting global variable led_position
-    delay(1000);
 
 }
 
@@ -232,13 +242,11 @@ void pulse(CRGB * cursor_loc)
 {   
     // pulse led to highlight static led position
 
-    leds.fadeToBlackBy(40);
-    FastLED.show();
-    for(int i =100;i > 0 ; i--)
+
+    for(int i =100;i > 0 ; i--)// gradually drop the red output of the chosen led until off
     {
     cursor_loc->red = i;
-    FastLED.show(); 
-    
+    FastLED.show();  
     }
 }
 
