@@ -69,7 +69,7 @@ void fadealltozero(){
 int read_line(char * buffer, int bufsize) {
 
     if(Serial.available() == 0){
-    Serial.print("nothing to read");  
+    //Serial.print("nothing to read");  
     return 0 ;}
 
     clear_input_buffer(buffer, 20); // guarantee no bad data carried over from previous run
@@ -147,16 +147,16 @@ void loop() {
 
     char line[LINE_BUFFER_SIZE]; 
     //Serial.printNumber(Serial.available());
-    clear_input_buffer[line,LINE_BUFFER_SIZE];
-    if (  read_line(line, sizeof(line)) < 0) {
+    int read_state = read_line(line, sizeof(line));
+    
+    if (  read_state < 0) {
         Serial.println("Error: line too long"); 
     return; // skip command processing and try again on next iteration of loop
     }
-    else if (read_line(line, sizeof(line)) == 0){
-        discostrobe();
-        //  cylon();
+    else if (read_state == 0){
+        //discostrobe();
+        cylon();
         FastLED.show();
-        clear_input_buffer[line,LINE_BUFFER_SIZE];
         return;
     }
 
@@ -211,7 +211,7 @@ void cylon() {
             
             fadeall(); 
             // Wait a little bit before we loop around and do it again 
-            delay(30); 
+            //delay(30); 
         } 
 //        Serial.print("x"); 
      
@@ -223,7 +223,7 @@ void cylon() {
             FastLED.show(); 
             fadeall(); 
             // Wait a little bit before we loop around and do it again 
-            delay(30); 
+            //delay(30); 
         } 
 } 
 
