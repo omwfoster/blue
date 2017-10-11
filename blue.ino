@@ -3,6 +3,13 @@
 #include <HashMap.h>
 #include "Countable.h"
 #include <FastLED.h>
+#include <NeoPixelEffects.h>
+
+#ifdef __AVR__
+#include <avr/power.h>
+#endif
+
+
 #define NUM_LEDS 64 
 #define DATA_PIN 7
 #define CLOCK_PIN 13
@@ -11,6 +18,25 @@
 #define FRAMES_PER_SECOND   100
 
 #define ZOOMING_BEATS_PER_MINUTE 122
+
+// neopixel playground definitions
+
+//#define DATA_PIN            A0
+//#define NUM_LEDS      143
+
+//CRGB leds[NUM_LEDS];
+
+unsigned long delay_ms = 50;
+bool dir = REVERSE;
+bool state_e5 = true;
+bool state_e6 = true;
+
+CRGB color_val;
+
+NeoPixelEffects effects[9];
+
+CRGB gradhue1 = CHSV(0, 255, 255);
+CRGB gradhue2 = CHSV(128, 255, 255);
 
 
 //Initialise the LED array, the LED Hue (ledh) array, and the LED Brightness (ledb) array.
@@ -139,7 +165,70 @@ void setup() {
     strangeLed[23]('x', 48);
     strangeLed[24]('y', 50);
     strangeLed[25]('z', 52);
+
+
+
+  int hue = 0;
+  color_val.setHue(hue);
+  effects[0] = NeoPixelEffects(leds, SINEWAVE, 0, 15, 1, 5, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[1] = NeoPixelEffects(leds, COMET, 16, 31, 8, delay_ms, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[2] = NeoPixelEffects(leds, LARSON, 32, 47, 1, delay_ms, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[3] = NeoPixelEffects(leds, PULSE, 48, 63, 1, delay_ms, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[4] = NeoPixelEffects(leds, STATIC, 64, 79, 1, delay_ms, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[5] = NeoPixelEffects(leds, FILLIN, 80, 95, 1, delay_ms, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[6] = NeoPixelEffects(leds, FILLIN, 96, 111, 1, delay_ms, color_val, true, dir);
+  hue += 32;
+  color_val.setHue(hue);
+  effects[7] = NeoPixelEffects(leds, NONE, 112, 127, 1, delay_ms, color_val, true, dir);
+  effects[7].fill_gradient(color_val, CHSV(96, 255, 255));
+  hue += 32;
+  color_val.setHue(hue);
+  effects[8] = NeoPixelEffects(leds, RAINBOWWAVE, 128, 142, 1, delay_ms, color_val, true, dir);
+
 }
+
+void neopixel_loop()
+{
+    for (int i = 0; i < 9; i++) {
+        if (i != 7) {
+          effects[i].update();
+        }
+      }
+      if (effects[5].getEffect() == NONE) {
+        if (state_e5) {
+          effects[5].setEffect(FADE);
+        } else {
+          effects[5].setEffect(FILLIN);
+        }
+        state_e5 = !state_e5;
+      }
+    
+      if (effects[6].getEffect() == NONE) {
+        if (state_e6) {
+          effects[6].setColor(CHSV(64, 255, 255));
+          effects[6].setEffect(FILLIN);
+        } else {
+          effects[6].setColor(CHSV(192, 255, 255));
+          effects[6].setEffect(FILLIN);
+        }
+        state_e6 = !state_e6;
+      }
+    
+      FastLED.show();
+}
+
 
 void loop() {
     Serial.print("> "); 
@@ -155,10 +244,16 @@ void loop() {
     }
     else if (read_state == 0){
         //discostrobe();
-        cylon();
-        FastLED.show();
+        //cylon();
+        //FastLED.show();
+
+        neopixel_loop();
+
         return;
     }
+
+
+
 
     // Process command
 
@@ -211,7 +306,7 @@ void cylon() {
             
             fadeall(); 
             // Wait a little bit before we loop around and do it again 
-            //delay(30); 
+            delay(15); 
         } 
 //        Serial.print("x"); 
      
@@ -223,7 +318,7 @@ void cylon() {
             FastLED.show(); 
             fadeall(); 
             // Wait a little bit before we loop around and do it again 
-            //delay(30); 
+            delay(15); 
         } 
 } 
 
@@ -255,7 +350,7 @@ void running_light(int next_position)
             leds.fadeToBlackBy(64); // incrementally fade the tail of the message
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
-            delay(20);
+            delay(35);
         }
     }
     else if(led_position > next_position){
@@ -264,7 +359,7 @@ void running_light(int next_position)
             leds.fadeToBlackBy(64); 
             leds[dot].red = 100;   // plain red led for creepy message
             FastLED.show(); 
-            delay(20);
+            delay(35);
         }
 
       
@@ -285,6 +380,7 @@ void pulse(CRGB * cursor_loc)
     for(int i =100;i > 0 ; i--)// gradually drop the red output of the chosen led until off
     {
     cursor_loc->red = i;
+    delay(5);
     FastLED.show();  
     }
 }
