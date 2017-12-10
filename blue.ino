@@ -4,6 +4,7 @@
 #include "Countable.h"
 #include <FastLED.h>
 #include <NeoPixelEffects.h>
+#include <SoftwareSerial.h>
 
 #ifdef __AVR__
 #include <avr/power.h>
@@ -14,7 +15,8 @@
 #define DATA_PIN 7
 #define CLOCK_PIN 13
 #define HASH_SIZE 26
-
+#define RxD 62
+#define TxD 6
 #define FRAMES_PER_SECOND   100
 
 #define ZOOMING_BEATS_PER_MINUTE 122
@@ -48,6 +50,8 @@ const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
 CRGBArray<NUM_LEDS> leds;
 volatile int led_position = 0;
 
+SoftwareSerial BlueToothSerial(RxD,TxD);
+
 HashType<char const *, int> hashRawArray[HASH_SIZE];   /// hashmap array definition to implement character tranlation to led array location
 HashMap<char const *, int> strangeLed = HashMap<char const *, int>(hashRawArray, HASH_SIZE);
 
@@ -63,6 +67,100 @@ void scroll_hue(int8_t &begin_cursor, int8_t &end_cursor)
         leds[i] = CHSV(hue++, 255, 255);    
     } 
 }
+
+void setup() {
+    pinMode(LED_PIN, OUTPUT); 
+    Serial.begin(9600);    // default serial setup for debugging
+    Serial.println("Welcome");
+    LEDS.addLeds<WS2812,DATA_PIN,GRB>(leds,NUM_LEDS); // create led class to hold values <led type,output_pin,orderby which colours are processed within the 3 byte CRGB struct
+    LEDS.setBrightness(84); 
+    // mapped values for character led mappings
+
+    int hue = 0;
+    color_val.setHue(hue);
+    effects[0] = NeoPixelEffects(leds, SINEWAVE, 0, 15, 1, 5, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[1] = NeoPixelEffects(leds, COMET, 16, 31, 8, delay_ms, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[2] = NeoPixelEffects(leds, LARSON, 32, 47, 1, delay_ms, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[3] = NeoPixelEffects(leds, PULSE, 48, 63, 1, delay_ms, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[4] = NeoPixelEffects(leds, STATIC, 64, 79, 1, delay_ms, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[5] = NeoPixelEffects(leds, FILLIN, 80, 95, 1, delay_ms, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[6] = NeoPixelEffects(leds, FILLIN, 96, 111, 1, delay_ms, color_val, true, dir);
+    hue += 32;
+    color_val.setHue(hue);
+    effects[7] = NeoPixelEffects(leds, NONE, 112, 127, 1, delay_ms, color_val, true, dir);
+    effects[7].fill_gradient(color_val, CHSV(96, 255, 255));
+    hue += 32;
+    color_val.setHue(hue);
+    effects[lkoi8] = NeoPixelEffects(leds, RAINBOWWAVE, 128, 142, 1, delay_ms, color_val, true, dir);
+  
+    strangeLed[0]('a', 1);
+    strangeLed[1]('b', 3);
+    strangeLed[2]('c', 6);
+    strangeLed[3]('d', 8);
+    strangeLed[4]('e', 10);
+    strangeLed[5]('f', 12);
+    strangeLed[6]('g', 14);
+    strangeLed[7]('h', 16);
+    strangeLed[8]('i', 18);
+    strangeLed[9]('j', 20);
+    strangeLed[10]('k', 22);
+    strangeLed[11]('l', 24);
+    strangeLed[12]('m', 26);
+    strangeLed[13]('n', 28);
+    strangeLed[14]('o', 30);
+    strangeLed[15]('p', 32);
+    strangeLed[16]('q', 34);
+    strangeLed[17]('r', 36);
+    strangeLed[18]('s', 38);
+    strangeLed[19]('t', 40);  
+    strangeLed[20]('u', 42);
+    strangeLed[21]('v', 44);
+    strangeLed[22]('w', 46);
+    strangeLed[23]('x', 48);
+    strangeLed[24]('y', 50);
+    strangeLed[25]('z', 52);
+
+
+
+  
+}
+
+
+
+void loop() {
+    Serial.print("> "); 
+    // Read command
+
+    char line[LINE_BUFFER_SIZE]; 
+    //Serial.printNumber(Serial.available());
+    int read_state = read_line(line, sizeof(line));
+    
+    if (  read_state < 0) {
+        Serial.println("Error: line too long"); 
+    return; // skip command processing and try again on next iteration of loop
+    }
+    else if (read_state == 0){
+        //discostrobe();
+        //cylon();
+        //FastLED.show();
+
+        neopixel_loop();
+
+        return;
+    }
+
     
 
 
@@ -87,6 +185,39 @@ void fadealltozero(){
         FastLED.show(); 
     }
 }
+
+
+void neopixel_loop()
+{
+    for (int i = 0; i < 9; i++) {
+        if (i != 7) {
+          effects[i].update();
+        }
+      }
+      if (effects[5].getEffect() == NONE) {
+        if (state_e5) {
+          effects[5].setEffect(FADE);
+        } else {
+          effects[5].setEffect(FILLIN);
+        }
+        state_e5 = !state_e5;
+      }
+    
+      if (effects[6].getEffect() == NONE) {
+        if (state_e6) {
+          effects[6].setColor(CHSV(64, 255, 255));
+          effects[6].setEffect(FILLIN);
+        } else {
+          effects[6].setColor(CHSV(192, 255, 255));
+          effects[6].setEffect(FILLIN);
+        }
+        state_e6 = !state_e6;
+      }
+    
+      FastLED.show();
+}
+
+
 
 
 
@@ -132,125 +263,7 @@ int read_line(char * buffer, int bufsize) {
 }
 
 
-void setup() {
-    pinMode(LED_PIN, OUTPUT); 
-    Serial.begin(9600);    // default serial setup for debugging
-    Serial.println("Welcome");
-    LEDS.addLeds<WS2812,DATA_PIN,GRB>(leds,NUM_LEDS); // create led class to hold values <led type,output_pin,orderby which colours are processed within the 3 byte CRGB struct
-    LEDS.setBrightness(84); 
-    // mapped values for character led mappings
-    strangeLed[0]('a', 1);
-    strangeLed[1]('b', 3);
-    strangeLed[2]('c', 6);
-    strangeLed[3]('d', 8);
-    strangeLed[4]('e', 10);
-    strangeLed[5]('f', 12);
-    strangeLed[6]('g', 14);
-    strangeLed[7]('h', 16);
-    strangeLed[8]('i', 18);
-    strangeLed[9]('j', 20);
-    strangeLed[10]('k', 22);
-    strangeLed[11]('l', 24);
-    strangeLed[12]('m', 26);
-    strangeLed[13]('n', 28);
-    strangeLed[14]('o', 30);
-    strangeLed[15]('p', 32);
-    strangeLed[16]('q', 34);
-    strangeLed[17]('r', 36);
-    strangeLed[18]('s', 38);
-    strangeLed[19]('t', 40);  
-    strangeLed[20]('u', 42);
-    strangeLed[21]('v', 44);
-    strangeLed[22]('w', 46);
-    strangeLed[23]('x', 48);
-    strangeLed[24]('y', 50);
-    strangeLed[25]('z', 52);
 
-
-
-  int hue = 0;
-  color_val.setHue(hue);
-  effects[0] = NeoPixelEffects(leds, SINEWAVE, 0, 15, 1, 5, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[1] = NeoPixelEffects(leds, COMET, 16, 31, 8, delay_ms, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[2] = NeoPixelEffects(leds, LARSON, 32, 47, 1, delay_ms, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[3] = NeoPixelEffects(leds, PULSE, 48, 63, 1, delay_ms, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[4] = NeoPixelEffects(leds, STATIC, 64, 79, 1, delay_ms, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[5] = NeoPixelEffects(leds, FILLIN, 80, 95, 1, delay_ms, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[6] = NeoPixelEffects(leds, FILLIN, 96, 111, 1, delay_ms, color_val, true, dir);
-  hue += 32;
-  color_val.setHue(hue);
-  effects[7] = NeoPixelEffects(leds, NONE, 112, 127, 1, delay_ms, color_val, true, dir);
-  effects[7].fill_gradient(color_val, CHSV(96, 255, 255));
-  hue += 32;
-  color_val.setHue(hue);
-  effects[8] = NeoPixelEffects(leds, RAINBOWWAVE, 128, 142, 1, delay_ms, color_val, true, dir);
-
-}
-
-void neopixel_loop()
-{
-    for (int i = 0; i < 9; i++) {
-        if (i != 7) {
-          effects[i].update();
-        }
-      }
-      if (effects[5].getEffect() == NONE) {
-        if (state_e5) {
-          effects[5].setEffect(FADE);
-        } else {
-          effects[5].setEffect(FILLIN);
-        }
-        state_e5 = !state_e5;
-      }
-    
-      if (effects[6].getEffect() == NONE) {
-        if (state_e6) {
-          effects[6].setColor(CHSV(64, 255, 255));
-          effects[6].setEffect(FILLIN);
-        } else {
-          effects[6].setColor(CHSV(192, 255, 255));
-          effects[6].setEffect(FILLIN);
-        }
-        state_e6 = !state_e6;
-      }
-    
-      FastLED.show();
-}
-
-
-void loop() {
-    Serial.print("> "); 
-    // Read command
-
-    char line[LINE_BUFFER_SIZE]; 
-    //Serial.printNumber(Serial.available());
-    int read_state = read_line(line, sizeof(line));
-    
-    if (  read_state < 0) {
-        Serial.println("Error: line too long"); 
-    return; // skip command processing and try again on next iteration of loop
-    }
-    else if (read_state == 0){
-        //discostrobe();
-        //cylon();
-        //FastLED.show();
-
-        neopixel_loop();
-
-        return;
-    }
 
 
 
