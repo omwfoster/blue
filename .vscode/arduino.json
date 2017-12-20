@@ -1,6 +1,6 @@
 {
     "sketch": "blue.ino",
     "board": "arduino:avr:megaADK",
-    "port": "COM3",
+    "port": "COM9",
     "output": "../ArduinoOutput"
 }
