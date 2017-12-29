@@ -40,7 +40,6 @@ CRGB gradhue2 = CHSV(128, 255, 255);
 uint8_t hueval = 0;
 
 SoftwareSerial SerialBT(rxd, txd);
-char str_command; //values to return current command instruction
 int int_value;
 int N_Pattern;
 
@@ -49,7 +48,7 @@ int N_Pattern;
 const int LED_PIN = 13;
 const CRGB TEST_COLOR = CRGB::Black;
 const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
-char input_line[LINE_BUFFER_SIZE];
+volatile char input_line[LINE_BUFFER_SIZE+1];
 //CRGB leds[NUM_LEDS];
 CRGBArray<NUM_LEDS> leds;
 volatile int led_position = 0;
@@ -59,19 +58,7 @@ volatile int led_position = 0;
 HashType<char const *, int> hashRawArray[HASH_SIZE];   /// hashmap array definition to implement character tranlation to led array location
 HashMap<char const *, int> strangeLed = HashMap<char const *, int>(hashRawArray, HASH_SIZE);
 
-void fadeall() {
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i].fadeToBlackBy( 64 );
-  }
-}
 
-void scroll_hue(int8_t &begin_cursor, int8_t &end_cursor)
-{
-  uint8_t hue;
-  for (int8_t i = begin_cursor; i < end_cursor; i++ ) {
-    leds[i] = CHSV(hue++, 255, 255);
-  }
-}
 
 
 
@@ -101,7 +88,7 @@ void fadealltozero() {
 
 
 int read_line(char * buffer, int bufsize) {
-
+  
   if (SerialBT.available() == 0) {
     return 0 ;
   }
@@ -114,7 +101,7 @@ int read_line(char * buffer, int bufsize) {
     char ch = SerialBT.read(); // read next character
 
     if (ch == '\n') {
-      buffer[index] = '\0'; // end of line reached: null terminate string
+      buffer[index] = '\n'; // end of line reached: null terminate string
       return index; // success: return length of string (zero if string is empty)
     }
     //test
@@ -137,28 +124,29 @@ int read_line(char * buffer, int bufsize) {
   return -1; // error: return negative one to indicate the input was too long
 }
 
-void chop(char * char_Buf, int buf_size) {
+int chop(char * local_buffer, int bufsize) {
  
-
   // Read each command pair
-  char* arg_Val = strtok(char_Buf, "\n");
-
-
-  while (arg_Val != 0)
+  //char* arg_Val = 0;
+  char * Buffer_arg = 0;
+  char * Buffer_val = 0;
+  Buffer_arg = strtok(local_buffer, "\n");
+  if (Buffer_arg != 0)
   {
     // Split the command in two values
-    char* arg_Val = strchr(arg_Val, ';');
-    if (arg_Val != 0)
+    char* Buffer_val = strchr(local_buffer, ';');
+    if (Buffer_val != 0)
     {
       // Actually split the string in 2: replace ';' with 0
-      *arg_Val = 0;
-      ++arg_Val;
-      process_command(char_Buf, arg_Val);
+      *Buffer_val = 0;
+      ++Buffer_val;
+      process_command(Buffer_val, Buffer_arg);
+      return 1;
     }
     // Find the next command in input string
-    arg_Val = strtok(0, "\n");
+    Buffer_val = strtok(0, "\n");
   }
-
+return 0 ;
 }
 
 
@@ -201,9 +189,6 @@ void running_light(int next_position)
       FastLED.show();
       delay(delay_ms);
     }
-
-
-
   }
   fadealltozero(); // clear the leds prior to flashing output charater led
   pulse(&leds[next_position]);       // pulse on hashmapped led
@@ -214,12 +199,12 @@ void running_light(int next_position)
 
 
 
-void strangerlite(char * buffer, int buf_size ) {
+void strangerlite(char * local_buffer, int buf_size ) {
 
 
   // iterate through the imput buffer until 0a is reached
   for (int i = 0; i < buf_size; i++) {
-    char c  = buffer[i];
+    char c  = local_buffer[i];
     if (c  != '\0') {
       running_light((int)strangeLed.getValueOf(c));
     }
@@ -238,8 +223,7 @@ void strangerlite(char * buffer, int buf_size ) {
 void process_command(char * str_arg, char *  str_val) {
 
 
-
-
+  Serial.print("process");
   if (strcmp(str_arg, "message") == 0) {
     strangerlite(str_arg, 31);
   } else if (strcmp(str_arg, "pattern") == 0) {
@@ -247,10 +231,8 @@ void process_command(char * str_arg, char *  str_val) {
   }
   else if (strcmp(str_arg, "delay") == 0) {
     delay_ms = atoi(str_val);
-
   }
   else {
-    //fadeall();
   }
 }
 
@@ -357,81 +339,48 @@ void setup() {
 
 void loop() {
 
-
-
   NPloop(N_Pattern);
-
-
-  clear_input_buffer(input_line, 20); // guarantee no bad data carried over from previous run
+  clear_input_buffer(input_line, LINE_BUFFER_SIZE); // guarantee no bad data carried over from previous run
   static int read_state = 0;
   read_state = read_line(input_line, sizeof(input_line));
-
   if (  read_state < 0) {
+    read_state=0;
     return; // skip command processing and try again on next iteration of loop
   }
   else if (read_state == 0) {
+    
     return;
   }
   else
   {
-    chop(input_line, sizeof(input_line));
+    //print_buffer(input_line,LINE_BUFFER_SIZE);
+    chop(input_line,LINE_BUFFER_SIZE);
+    read_state=0;
   }
-
-
-  // draw the light pattern into the 'leds' array
-
-
 }
 
 
 void  clear_input_buffer(char * local_buffer, int buf_len) {
 
-  for (int index = 0; index < buf_len; index++) {
-    local_buffer[index] = '\0'; //write 20 string terminators to array.
-    //Guarantees that any string within bounds will be null terminated
-  }
+memset(local_buffer,0,buf_len+1);
 }
 
 int print_buffer(char * local_buffer, int buf_len) {
-  for (int index = 0; index < buf_len; index++) {
-    //   Serial.print(local_buffer[index]);   //output buffer contents for debug
-  }
+
+
 
 }
 
-
-
-
-void cylon() {
-  static uint8_t hue = 0;
-  //        Serial.print("x");
-  // First slide the led in one direction
+void fadeall() {
   for (int i = 0; i < NUM_LEDS; i++) {
-    // Set the i'th led to red
-    leds[i] = CHSV(hue++, 255, 255);
-    // Show the leds
-    FastLED.show();
-    // now that we've shown the leds, reset the i'th led to black
-
-    fadeall();
-    // Wait a little bit before we loop around and do it again
-    delay(delay_ms);
-  }
-  //        Serial.print("x");
-
-  // Now go in the other direction.
-  for (int i = (NUM_LEDS) - 1; i >= 0; i--) {
-    // Set the i'th led to red
-    leds[i] = CHSV(hue++, 255, 255);
-    // Show the leds
-    FastLED.show();
-    fadeall();
-    // Wait a little bit before we loop around and do it again
-    delay(delay_ms);
+    leds[i].fadeToBlackBy( 64 );
   }
 }
 
-
-
-
-
+void scroll_hue(int8_t &begin_cursor, int8_t &end_cursor)
+{
+  uint8_t hue;
+  for (int8_t i = begin_cursor; i < end_cursor; i++ ) {
+    leds[i] = CHSV(hue++, 255, 255);
+  }
+}
