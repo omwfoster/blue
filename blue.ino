@@ -25,7 +25,7 @@ CRGB grey = CHSV {0, 255, 255};
 
 
 
-volatile unsigned long delay_ms = 25;
+unsigned long delay_ms;
 bool dir = REVERSE;
 bool state_e5 = true;
 bool state_e6 = true;
@@ -39,7 +39,7 @@ CRGB gradhue1 = CHSV(0, 255, 255);
 CRGB gradhue2 = CHSV(128, 255, 255);
 uint8_t hueval = 0;
 
-SoftwareSerial SerialBT(rxd, txd);
+//SoftwareSerial Serial1(rxd, txd);
 int int_value;
 int N_Pattern;
 
@@ -48,10 +48,10 @@ int N_Pattern;
 const int LED_PIN = 13;
 const CRGB TEST_COLOR = CRGB::Black;
 const int LINE_BUFFER_SIZE = 20; // max line length is one less than this
-volatile char input_line[LINE_BUFFER_SIZE+1];
+char input_line[LINE_BUFFER_SIZE + 1];
 //CRGB leds[NUM_LEDS];
 CRGBArray<NUM_LEDS> leds;
-volatile int led_position = 0;
+int led_position;
 //volatile int delay;
 
 
@@ -87,21 +87,24 @@ void fadealltozero() {
 
 
 
-int read_line(char * buffer, int bufsize) {
+int read_line(char * buffer, int  buf_size) {
+
   
-  if (SerialBT.available() == 0) {
+
+  if (Serial1.available() == 0) {
     return 0 ;
   }
-
-  for (int index = 0; index < bufsize; index++) {
+  
+  
+  for (int index = 0; index <  buf_size; index++) {
     // Wait until characters are available
-    while (SerialBT.available() == 0) {
+    while (Serial1.available() == 0) {
     }
 
-    char ch = SerialBT.read(); // read next character
+    char ch = Serial1.read(); // read next character
 
     if (ch == '\n') {
-      buffer[index] = '\n'; // end of line reached: null terminate string
+      buffer[index] = '\0'; // end of line reached: null terminate string
       return index; // success: return length of string (zero if string is empty)
     }
     //test
@@ -112,41 +115,46 @@ int read_line(char * buffer, int bufsize) {
   // Discard the rest of the line (safer than returning a partial line).
 
   char ch;
-  do {
+  //do {
     // Wait until characters are available
-    while (SerialBT.available() == 0) {
+    while (Serial1.available() == 0) {
     }
-    ch = SerialBT.read(); // read next character (and discard it)
+    ch = Serial1.read(); // read next character (and discard it)
 
-  } while (ch != '\n');
+  //} while (ch != '\n');
 
-  buffer[0] = 0; // set buffer to empty string even though it should not be used
+  clear_input_buffer();
   return -1; // error: return negative one to indicate the input was too long
 }
 
-int chop(char * local_buffer, int bufsize) {
- 
-  // Read each command pair
-  //char* arg_Val = 0;
-  char * Buffer_arg = 0;
+// separate arg/val pairs
+//axecute argument through (process_command)
+
+int chop(char * local_buffer, int buf_size) {
+
   char * Buffer_val = 0;
-  Buffer_arg = strtok(local_buffer, "\n");
-  if (Buffer_arg != 0)
+
+  //Buffer_arg = local_buffer;
+   // Split the command in two values
+
+  
+  if (local_buffer != 0)
   {
-    // Split the command in two values
     char* Buffer_val = strchr(local_buffer, ';');
     if (Buffer_val != 0)
     {
       // Actually split the string in 2: replace ';' with 0
       *Buffer_val = 0;
       ++Buffer_val;
-      process_command(Buffer_val, Buffer_arg);
-      return 1;
+
+      process_command(local_buffer, Buffer_val);     
     }
     // Find the next command in input string
-    Buffer_val = strtok(0, "\n");
+  
+  return 1;
+
   }
-return 0 ;
+  return 0 ;
 }
 
 
@@ -200,8 +208,6 @@ void running_light(int next_position)
 
 
 void strangerlite(char * local_buffer, int buf_size ) {
-
-
   // iterate through the imput buffer until 0a is reached
   for (int i = 0; i < buf_size; i++) {
     char c  = local_buffer[i];
@@ -219,21 +225,35 @@ void strangerlite(char * local_buffer, int buf_size ) {
 
 
 
+// pattern match and executes argument\value pair
+
 
 void process_command(char * str_arg, char *  str_val) {
 
 
-  Serial.print("process");
   if (strcmp(str_arg, "message") == 0) {
-    strangerlite(str_arg, 31);
+    strangerlite(str_val, LINE_BUFFER_SIZE);
+  
+  
   } else if (strcmp(str_arg, "pattern") == 0) {
+   // trim_trailing_char(str_val);
     N_Pattern = atoi(str_val);
+  
+  
   }
   else if (strcmp(str_arg, "delay") == 0) {
+   //  trim_trailing_char(str_val);
     delay_ms = atoi(str_val);
   }
   else {
   }
+  print_buffer();
+  clear_input_buffer();
+  
+
+
+  
+  
 }
 
 void NPloop(int i) {
@@ -266,10 +286,13 @@ void NPloop(int i) {
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
-  SerialBT.begin(38400);    // default serial setup for debugging
+  Serial1.begin(9600);    // default serial setup for debugging
   Serial.begin(9600);
-  // SerialBT.begin(38400);
+  clear_input_buffer();
+  // Serial1.begin(38400);
   N_Pattern = 1;
+  delay_ms = 25;
+  led_position = 0;
 
   LEDS.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS); // create led class to hold values <led type,output_pin,orderby which colours are processed within the 3 byte CRGB struct
   LEDS.setBrightness(84);
@@ -332,7 +355,6 @@ void setup() {
   hue += 32;
   color_val.setHue(hue);
   effects[8] = NeoPixelEffects(leds, RAINBOWWAVE, rangeStart, rangeEnd, 1, delay_ms, color_val, true, dir);
-
 }
 
 
@@ -340,34 +362,58 @@ void setup() {
 void loop() {
 
   NPloop(N_Pattern);
-  clear_input_buffer(input_line, LINE_BUFFER_SIZE); // guarantee no bad data carried over from previous run
-  static int read_state = 0;
-  read_state = read_line(input_line, sizeof(input_line));
+  int read_state = 0;
+  read_state = read_line(input_line, LINE_BUFFER_SIZE);
   if (  read_state < 0) {
-    read_state=0;
+    read_state = 0;
     return; // skip command processing and try again on next iteration of loop
   }
   else if (read_state == 0) {
-    
+
     return;
   }
   else
   {
-    //print_buffer(input_line,LINE_BUFFER_SIZE);
-    chop(input_line,LINE_BUFFER_SIZE);
-    read_state=0;
+    
+    chop(input_line, read_state);
+    read_state = 0;
+
+    return;
   }
 }
 
 
-void  clear_input_buffer(char * local_buffer, int buf_len) {
 
-memset(local_buffer,0,buf_len+1);
+// set all contents of allocated buffer space to null. Size is one larger than buffer size to guarantee null termination.
+
+void  clear_input_buffer() {
+
+
+
+  for(int  i = 0 ; i < LINE_BUFFER_SIZE; i++)
+  {
+    input_line[i] = 0;
+  }
+  // memset(input_line, 0, LINE_BUFFER_SIZE+1);
 }
 
-int print_buffer(char * local_buffer, int buf_len) {
+void trim_trailing_char(char * arg_val)
+{
+   char * p = strchr (arg_val, '\r'); // search for space
+      if (p)     // if found truncate at space
+        { *p = 0;}
+}
 
 
+//print contents of defined buffer. Assumes char[] contents . second argument is irrelevant as assumes null, and appends \n
+
+int print_buffer() {
+
+  
+  for (int8_t i = 0; i < LINE_BUFFER_SIZE; i++ ) {
+   Serial.write((char)input_line[i]);
+  }
+   //Serial.print('\r');
 
 }
 
