@@ -245,6 +245,14 @@ void process_command(char * str_arg, char *  str_val) {
    //  trim_trailing_char(str_val);
     delay_ms = atoi(str_val);
   }
+
+
+  else if (strcmp(str_arg,"colour") ==0 ){
+  set_colour(str_val,&color_val);
+  }
+
+
+
   else {
   }
   print_buffer();
@@ -254,6 +262,23 @@ void process_command(char * str_arg, char *  str_val) {
 
   
   
+}
+
+int set_colour(char * char_RGB, CRGB * CRGB_local )
+{
+  //RGB packet should be 11 character long. 3 x 3 bytes plus 2 x comma delimeters
+  if(strlen(char_RGB)==11)
+    {
+      int i = 0;
+      char * token = strtok(',',char_RGB);
+        do
+        {   
+            CRGB_local[i] = atoi(token);
+            token = strtok(0,token) ;
+            i++;
+        }while(token);
+    }
+  return;
 }
 
 void NPloop(int i) {
