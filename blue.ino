@@ -234,21 +234,33 @@ void process_command(char * str_arg, char *  str_val) {
   if (strcmp(str_arg, "message") == 0) {
     strangerlite(str_val, LINE_BUFFER_SIZE);
   
+
+  // nb using global variable. state located in N_patter,
+  // and currentNPE. beware. move towards pointer
   
   } else if (strcmp(str_arg, "pattern") == 0) {
    // trim_trailing_char(str_val);
     N_Pattern = atoi(str_val);
+    currentNPE = &effects[N_Pattern];
   
   
   }
   else if (strcmp(str_arg, "delay") == 0) {
    //  trim_trailing_char(str_val);
-    delay_ms = atoi(str_val);
+    if(currentNPE)
+      {
+        currentNPE->setDelay(atoi(str_val));
+      }
   }
 
 
   else if (strcmp(str_arg,"colour") ==0 ){
-  set_colour(str_val,&color_val);
+    set_colour(str_val,&color_val);
+
+        if(currentNPE)
+      {
+        currentNPE->setColor(color_val);
+      }
   }
 
 
@@ -264,7 +276,7 @@ void process_command(char * str_arg, char *  str_val) {
   
 }
 
-int set_colour(char * char_RGB, CRGB * CRGB_local )
+int set_colour(char * char_RGB, CRGB * CRGB_reference )
 {
   //RGB packet should be 11 character long. 3 x 3 bytes plus 2 x comma delimeters
   if(strlen(char_RGB)==11)
@@ -273,13 +285,21 @@ int set_colour(char * char_RGB, CRGB * CRGB_local )
       char * token = strtok(',',char_RGB);
         do
         {   
-            CRGB_local[i] = atoi(token);
+            CRGB_reference[i] = atoi(token);
             token = strtok(0,token) ;
             i++;
         }while(token);
+        return 1;
     }
-  return;
+  return 0;
 }
+
+
+
+
+
+
+
 
 void NPloop(int i) {
   if (i != 7) {
