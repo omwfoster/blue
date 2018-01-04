@@ -207,10 +207,10 @@ void running_light(int next_position)
 
 
 
-void strangerlite(char * local_buffer, int buf_size ) {
+void strangerlite(char * global_buffer_ref, int buf_size ) {
   // iterate through the imput buffer until 0a is reached
   for (int i = 0; i < buf_size; i++) {
-    char c  = local_buffer[i];
+    char c  = global_buffer_ref[i];
     if (c  != '\0') {
       running_light((int)strangeLed.getValueOf(c));
     }
@@ -235,7 +235,7 @@ void process_command(char * str_arg, char *  str_val) {
     strangerlite(str_val, LINE_BUFFER_SIZE);
   
 
-  // nb using global variable. state located in N_patter,
+  // nb using global variable. state duplicated in N_pattern,
   // and currentNPE. beware. move towards pointer
   
   } else if (strcmp(str_arg, "pattern") == 0) {
@@ -270,31 +270,33 @@ void process_command(char * str_arg, char *  str_val) {
   print_buffer();
   clear_input_buffer();
   
-
-
-  
   
 }
 
 int set_colour(char * char_RGB, CRGB * CRGB_reference )
 {
   //RGB packet should be 11 character long. 3 x 3 bytes plus 2 x comma delimeters
-  if(strlen(char_RGB)==11)
+  // nope
+  if(char_RGB)
     {
-      int i = 0;
-      char * token = strtok(',',char_RGB);
-        do
-        {   
-            CRGB_reference[i] = atoi(token);
-            token = strtok(0,token) ;
-            i++;
-        }while(token);
+      char * char_red  = strchr('R',char_RGB);
+      char * char_green = strchr('G',char_RGB);
+      char * char_blue = strchr('B',char_RGB);
+      char * char_end = strchr(';',char_RGB);
+      char_red = 0;
+      char_green = 0;
+      char_blue = 0;
+      char_end = 0;
+      char_red ++;
+      char_green ++;
+      char_blue ++;
+      char_end ++;
+      CRGB_reference->setRGB(atoi(char_red),atoi(char_green),atoi(char_blue));
+
         return 1;
     }
   return 0;
 }
-
-
 
 
 
@@ -336,6 +338,7 @@ void setup() {
   clear_input_buffer();
   // Serial1.begin(38400);
   N_Pattern = 1;
+  currentNPE = &effects[N_Pattern];
   delay_ms = 25;
   led_position = 0;
 
@@ -400,6 +403,10 @@ void setup() {
   hue += 32;
   color_val.setHue(hue);
   effects[8] = NeoPixelEffects(leds, RAINBOWWAVE, rangeStart, rangeEnd, 1, delay_ms, color_val, true, dir);
+
+
+currentNPE = &effects[N_Pattern];
+
 }
 
 
