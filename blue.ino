@@ -208,7 +208,7 @@ void running_light(int next_position)
 
 
 void strangerlite(char * global_buffer_ref, int buf_size ) {
-  // iterate through the imput buffer until 0a is reached
+  // iterate through the imput buffer until null is reached
   for (int i = 0; i < buf_size; i++) {
     char c  = global_buffer_ref[i];
     if (c  != '\0') {
@@ -253,6 +253,10 @@ void process_command(char * str_arg, char *  str_val) {
       }
   }
 
+  else if (strcmp(str_arg, "bright") == 0) {
+   //  trim_trailing_char(str_val);
+    FastLED.setBrightness(atoi(str_val));
+  }
 
   else if (strcmp(str_arg,"colour") ==0 ){
     set_colour(str_val,&color_val);
